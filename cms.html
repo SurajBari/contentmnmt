@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin CMS Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow-md p-4 flex flex-wrap items-center justify-between gap-4 sm:flex-nowrap">
+    <div class="flex items-center space-x-4">
+      <button onclick="toggleSidebar()" class="sm:hidden text-blue-600 text-2xl focus:outline-none">☰</button>
+      <img src="../H-LOGO.png" alt="Company Logo" class="h-10 w-10 rounded-full">
+      <h1 class="text-xl font-bold text-blue-600">VAHYAN Admin CMS</h1>
+    </div>
+    <div class="w-full sm:w-auto">
+      <input type="text" id="searchInput" oninput="searchEmployee()" placeholder="Search employee..." class="border border-gray-300 px-3 py-2 rounded w-full sm:w-64" />
+    </div>
+  </header>
+
+  <div class="flex flex-1">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-md sm:block hidden absolute sm:relative z-10 h-full sm:h-auto">
+      <div class="p-6 text-2xl font-bold text-blue-600">Admin CMS</div>
+      <nav class="mt-6">
+        <a href="#dashboard" class="block px-6 py-2 text-gray-700 hover:bg-blue-100">Dashboard</a>
+        <a href="#employees" class="block px-6 py-2 text-gray-700 hover:bg-blue-100">Employees</a>
+        <a href="#add-employee" class="block px-6 py-2 text-gray-700 hover:bg-blue-100">Add Employee</a>
+        <a href="#settings" class="block px-6 py-2 text-gray-700 hover:bg-blue-100">Settings</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <h1 class="text-3xl font-semibold text-gray-800 mb-6" id="dashboard">Dashboard</h1>
+
+      <!-- Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-700">Total Employees</h2>
+          <p class="text-2xl font-bold text-blue-600 mt-2">120</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-700">Departments</h2>
+          <p class="text-2xl font-bold text-blue-600 mt-2">5</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+          <h2 class="text-xl font-semibold text-gray-700">Active Projects</h2>
+          <p class="text-2xl font-bold text-blue-600 mt-2">8</p>
+        </div>
+      </div>
+
+      <!-- Graph Chart -->
+      <div class="bg-white p-6 rounded-lg shadow mb-10">
+        <h2 class="text-2xl font-semibold mb-4">Monthly Employee Growth</h2>
+        <canvas id="employeeChart" height="100"></canvas>
+      </div>
+
+      <!-- Employee Table -->
+      <div class="bg-white p-6 rounded-lg shadow mb-10" id="employees">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+          <h2 class="text-2xl font-semibold">Employee List</h2>
+          <button onclick="printEmployeesPDF()" class="bg-green-600 text-white px-4 py-2 rounded">Print as PDF</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto" id="employeeTableWrapper">
+            <thead>
+              <tr class="bg-gray-200 text-left">
+                <th class="px-4 py-2">Name</th>
+                <th class="px-4 py-2">Position</th>
+                <th class="px-4 py-2">Department</th>
+                <th class="px-4 py-2">Status</th>
+                <th class="px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employeeTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add / Update Employee Form -->
+      <div class="bg-white p-6 rounded-lg shadow" id="add-employee">
+        <h2 class="text-2xl font-semibold mb-4">Add / Update Employee</h2>
+        <form id="employeeForm" class="space-y-4">
+          <input type="hidden" id="editIndex" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium">Full Name</label>
+              <input type="text" id="empName" class="w-full border border-gray-300 p-2 rounded" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Position</label>
+              <input type="text" id="empPosition" class="w-full border border-gray-300 p-2 rounded" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Department</label>
+              <input type="text" id="empDept" class="w-full border border-gray-300 p-2 rounded" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium">Status</label>
+              <select id="empStatus" class="w-full border border-gray-300 p-2 rounded">
+                <option value="Active">Active</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white text-center text-gray-600 py-4 shadow-inner mt-auto">
+    © 2025 VAHYAN. All rights reserved.
+  </footer>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
+    const form = document.getElementById('employeeForm');
+    const table = document.getElementById('employeeTable');
+    const editIndexInput = document.getElementById('editIndex');
+    let employees = [];
+
+    function renderTable(data = employees) {
+      table.innerHTML = '';
+      data.forEach((emp, index) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b';
+        row.innerHTML = `
+          <td class="px-4 py-2">${emp.name}</td>
+          <td class="px-4 py-2">${emp.position}</td>
+          <td class="px-4 py-2">${emp.dept}</td>
+          <td class="px-4 py-2 font-semibold ${emp.status === 'Active' ? 'text-green-600' : emp.status === 'On Leave' ? 'text-yellow-600' : 'text-red-600'}">${emp.status}</td>
+          <td class="px-4 py-2 space-x-2">
+            <button class="bg-yellow-400 text-white px-2 py-1 rounded text-sm" onclick="editEmployee(${index})">Edit</button>
+            <button class="bg-red-500 text-white px-2 py-1 rounded text-sm" onclick="deleteEmployee(${index})">Delete</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function searchEmployee() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = employees.filter(emp => emp.name.toLowerCase().includes(query));
+      renderTable(filtered);
+    }
+
+    function deleteEmployee(index) {
+      if (confirm("Are you sure you want to delete this employee?")) {
+        employees.splice(index, 1);
+        renderTable();
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('empName').value;
+      const position = document.getElementById('empPosition').value;
+      const dept = document.getElementById('empDept').value;
+      const status = document.getElementById('empStatus').value;
+      const editIndex = editIndexInput.value;
+
+      const employee = { name, position, dept, status };
+
+      if (editIndex === '') {
+        employees.push(employee);
+      } else {
+        employees[editIndex] = employee;
+        editIndexInput.value = '';
+      }
+
+      renderTable();
+      form.reset();
+    });
+
+    function editEmployee(index) {
+      const emp = employees[index];
+      document.getElementById('empName').value = emp.name;
+      document.getElementById('empPosition').value = emp.position;
+      document.getElementById('empDept').value = emp.dept;
+      document.getElementById('empStatus').value = emp.status;
+      editIndexInput.value = index;
+      window.location.hash = 'add-employee';
+    }
+
+    async function printEmployeesPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+
+      doc.setFontSize(16);
+      doc.text('Employee List', 10, y);
+      y += 10;
+
+      employees.forEach((emp, index) => {
+        doc.setFontSize(12);
+        doc.text(`Name: ${emp.name}`, 10, y);
+        doc.text(`Position: ${emp.position}`, 60, y);
+        y += 6;
+        doc.text(`Department: ${emp.dept}`, 10, y);
+        doc.text(`Status: ${emp.status}`, 60, y);
+        y += 10;
+
+        if (y > 270) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+
+      doc.save('employee_list.pdf');
+    }
+
+    // Chart.js - Monthly Employee Count (Bar Chart)
+    const ctx = document.getElementById('employeeChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Employees Joined',
+          data: [5, 8, 6, 10, 12, 7, 9, 11, 13, 10, 6, 8],
+          backgroundColor: 'rgba(59, 130, 246, 0.6)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
